@@ -18,6 +18,8 @@ public:
 
 	void add(std::string line);
 
+	int size();
+
 	Block feed(); // Returns the next valid block in a vector of tokens
 	              // the rest of the vector of tokens is left behind
 

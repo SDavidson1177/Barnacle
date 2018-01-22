@@ -49,7 +49,7 @@ void Lexer::parse(std::string line) {
 			else {
 				key = "";
 			}
-		}else if(line[i] == '/'){
+		}else if(line[i] == '#'){
 			if (startingComment) {
 				break;
 			}
@@ -129,7 +129,7 @@ void Lexer::parse(std::string line) {
 			startingComment = false;
 		}
 	}
-	// Preforms appropriate operations at the end of a line.
+	// Preforms appropriate at the end of a line.
 	if (isMember(key, symbols.size(), symbols) > 0 && !inString) { // If line ends on a symbol.
 		std::string new_key = key.substr(isMember(key, symbols.size(), symbols));
 		getTag(key.substr(0, isMember(key, symbols.size(), symbols)), combined, "Symbol", &this->tokens);
@@ -190,4 +190,8 @@ Block Lexer::feed() {
 
 bool Lexer::isEmpty() {
 	return this->tokens.empty();
+}
+
+int Lexer::size() {
+	return this->tokens.size();
 }

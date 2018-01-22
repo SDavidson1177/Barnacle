@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 		}
 	}
 	main_syntax_tree.getBlocks(&lexed_file);
-	//main_syntax_tree.coutTree();
+	main_syntax_tree.coutTree();
 	main_syntax_tree.getStatements(&variables, &functions);
 	//testBinOp.makeOperation(&lexed_file.tokens, 0);
 	//testBinOp.execute(&variables, 0);

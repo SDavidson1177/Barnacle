@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <new>
 #include "Block.h"
 #include "Token.h"
 #include "Statement.h"
@@ -13,24 +14,40 @@ bool inBracket = false;
 bool braceNeeded = false;
 bool inBrace = false;
 
-bool callingFunction = false;
-int funcID = -1;
-int parameterNum = 0;
-Function executedFunction;
-
 // Function for finding the value of a given variable
 std::string findVariable(std::vector<std::vector <Assignment>*> variables, std::string p_key) {
-	for (int indexOfVec = 0; indexOfVec < variables.size() + 1; indexOfVec++) {
-		if (indexOfVec == variables.size()) {
-			return "Error variable as parameter undefined";
-		}
-		else {
-			for (int i = 0; i < variables.at(indexOfVec)->size(); i++) {
-				if (p_key == variables.at(indexOfVec)->at(i).key) {
-					return variables.at(indexOfVec)->at(i).value;
+	try {
+		for (int indexOfVec = 0; indexOfVec < variables.size() + 1; indexOfVec++) {
+			if (indexOfVec == variables.size()) {
+				throw "Error variable as parameter undefined";
+			}
+			else {
+				for (int i = 0; i < variables.at(indexOfVec)->size(); i++) {
+					if (p_key == variables.at(indexOfVec)->at(i).key) {
+						return variables.at(indexOfVec)->at(i).value;
+					}
 				}
 			}
 		}
+	}
+	catch (const char* error) {
+		return "NULL";
+	}
+}
+
+Function* findFunction(std::vector <Function>* functions, std::string p_key){
+	try {
+		for (int i = 0; i < functions->size() + 1; i++) {
+			if (i == functions->size()) {
+				throw "Error: function undefined";
+			}
+			else if(stringEquals(p_key, functions->at(i).key)){
+				return &functions->at(i);
+			}
+		}
+	}
+	catch (const char* error) {
+		return nullptr;
 	}
 }
 
@@ -96,7 +113,8 @@ std::string Block::checkInequality(std::vector<std::vector <Assignment>*> variab
 	return std::to_string(op.execute(variables));
 }
 
-void Block::evaluate(std::vector<std::vector <Assignment>*> variables, std::vector <Function>* functions) {
+void Block::evaluate(std::vector<std::vector <Assignment>*> variables, std::vector <Function>* functions, bool* callingFunction, 
+	int* parameterNum, Function** executedFunction, std::string* p_return_value, bool* returning) {
 	try {
 		if (inFunction) {
 			if (this->statement.at(0).getTokenValue() == "LBracket" && !inBracket && !inBrace) {
@@ -126,49 +144,34 @@ void Block::evaluate(std::vector<std::vector <Assignment>*> variables, std::vect
 			else {
 				throw "Error creating function";
 			}
-		}else if(callingFunction){
-			if (this->statement.at(0).getTokenValue() == "LBracket" && !inBracket) {
-				inBracket = true;
+		}else if(*callingFunction){
+			if (this->statement.size() > 2) {
+				(*executedFunction)->variables.at(*parameterNum).value = this->checkInequality(variables);
+				*parameterNum = *parameterNum + 1;
 			}
-			else if (this->statement.at(0).getTokenValue() == "RBracket" && inBracket) {
-				inBracket = false;
-				callingFunction = false;
-				executedFunction.evaluate(variables, functions);
-			}else if(inBracket){
-				if (parameterNum >= executedFunction.variables.size()) {
-					throw "Error too many parameter values in function call";
+			else if (this->statement.at(0).getTokenValue() == "Integer") {
+				(*executedFunction)->variables.at(*parameterNum).value = this->statement.at(0).getTokenKey();
+				*parameterNum = *parameterNum + 1;
+			}
+			else if (this->statement.at(0).getTokenValue() == "Symbol") {
+				(*executedFunction)->variables.at(*parameterNum).value = findVariable(variables, this->statement.at(0).getTokenKey());
+				if ((*executedFunction)->variables.at(*parameterNum).value == "NULL") {
+					throw "undeclared variable as function parameter";
 				}
-				else {
-					if (this->statement.at(0).getTokenValue() == "Symbol") {
-						for (int indexOfVec = 0; indexOfVec < variables.size() + 1; indexOfVec++) {
-							if (indexOfVec == variables.size()) {
-								throw "Error variable as parameter undefined";
-							}
-							else {
-								for (int i = 0; i < variables.at(indexOfVec)->size(); i++) {
-									if (this->statement.at(0).getTokenKey() == variables.at(indexOfVec)->at(i).key) {
-										executedFunction.variables.at(parameterNum).value = variables.at(indexOfVec)->at(i).value;
-										indexOfVec = variables.size() + 1;
-										parameterNum++;
-										break;
-									}
-								}
-							}
-						}
-					}
-					else if(this->statement.at(0).getTokenValue() == "Integer"){
-						executedFunction.variables.at(parameterNum).value = this->statement.at(0).getTokenKey();
-						parameterNum++;
-					}
-					else {
-						throw "Error: invalid parameter type";
-					}
+				*parameterNum = *parameterNum + 1;
+			}
+			else if (this->statement.at(0).getTokenValue() == "RBracket") {
+				(*executedFunction)->evaluate(variables, functions);
+				*callingFunction = false;
+				*parameterNum = 0;
+				const int size = (*executedFunction)->variables.size();
+				for (int i = 0; i < size; i++) {
+					(*executedFunction)->variables.at(i).value = "";
 				}
-			}else{
-				throw "Error: invalid function call";
+				*executedFunction = nullptr;
 			}
 		}
-		else if (this->statement.size() < 2) {
+		else if (this->statement.size() == 1) {
 			if (this->statement.at(0).getTokenValue() == "Symbol") {
 				//make a call
 				//temperary
@@ -178,6 +181,10 @@ void Block::evaluate(std::vector<std::vector <Assignment>*> variables, std::vect
 					i = 0;
 					while (i < variables.at(indexOfVec)->size()) {
 						if (stringEquals(this->statement.at(0).getTokenKey(), variables.at(indexOfVec)->at(i).key)) {
+							if (*returning) {
+								*p_return_value = variables.at(indexOfVec)->at(i).value;
+								*returning = false;
+							}
 							std::cout << variables.at(indexOfVec)->at(i).value;
 							found = true;
 							indexOfVec = variables.size();
@@ -186,22 +193,18 @@ void Block::evaluate(std::vector<std::vector <Assignment>*> variables, std::vect
 						i++;
 					}
 				}
+				i = 0;
 				if (!found) {
-					i = 0;
 					while (i < functions->size()) {
 						if (stringEquals(this->statement.at(0).getTokenKey(), functions->at(i).key)) {
-							//functions->at(i).evaluate(variables, functions);
-							funcID = i;
-							parameterNum = 0;
-							callingFunction = true;
-							executedFunction = functions->at(i);
 							found = true;
+							*callingFunction = true;
+							*executedFunction = &functions->at(i);
 							break;
 						}
 						i++;
 					}
 				}
-
 				if (!found) {
 					throw "Error undeclared identifier";
 				}
@@ -252,6 +255,10 @@ void Block::evaluate(std::vector<std::vector <Assignment>*> variables, std::vect
 			}
 		}
 		else if (this->statement.size() > 2) {
+			if (*returning) {
+				*p_return_value = this->checkInequality(variables);
+				*returning = false;
+			}
 			std::cout << this->checkInequality(variables);
 		}
 	}

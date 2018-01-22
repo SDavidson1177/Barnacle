@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include "Function.h"
 #include "Statement.h"
@@ -15,20 +16,18 @@ Function::Function(std::string p_key) {
 }
 
 Function::~Function() {
-	
+	delete executedFunction;
 }
 
 void Function::appendBlock(Block* bl) {
 	this->blocks.push_back(*bl);
 }
 
-void Function::evaluate(std::vector <std::vector <Assignment>*> variables, std::vector <Function>* functions) {
-	std::vector <std::vector <Assignment>*> tempVec = { &this->variables };
-	for (int i = 0; i < variables.size(); i++) {
-		tempVec.push_back(variables.at(i));
-	}
+void Function::coutBlocks() {
 	for (int i = 0; i < this->blocks.size(); i++) {
-		this->blocks.at(i).evaluate(tempVec, functions);
+		std::cout << "Block " << i << std::endl;
+		this->blocks.at(i).coutBlock();
+		std::cout<< "End of Block...\n";
 	}
 }
 

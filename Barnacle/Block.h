@@ -12,6 +12,7 @@ class Function;
 
 class Block {
 	std::vector <Token> statement;
+
 public:
 	Block();
 
@@ -27,5 +28,7 @@ public:
 
 	std::string checkInequality(std::vector<std::vector <Assignment>*> variables);
 
-	void evaluate(std::vector<std::vector <Assignment>*> variables, std::vector <Function>* functions);
+	void evaluate(std::vector<std::vector <Assignment>*> variables, std::vector <Function>* functions, 
+		bool* callingFunction, int* parameterNum, Function** executedFunction, std::string* p_return_value = nullptr,
+		bool* returning = nullptr);
 };

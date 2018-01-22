@@ -6,11 +6,11 @@
 std::vector <std::vector <std::string>> declared_vars;
 
 SyntaxTree::SyntaxTree() {
-
+	executedFunction = nullptr;
 }
 
 SyntaxTree::SyntaxTree(Lexer lexed_info) {
-
+	executedFunction = nullptr;
 }
 
 SyntaxTree::~SyntaxTree() {
@@ -18,16 +18,13 @@ SyntaxTree::~SyntaxTree() {
 }
 
 void SyntaxTree::getBlocks(Lexer* lexed_info) {
+	std::cout << lexed_info->size();
 	do {
 		this->Blocks.push_back(lexed_info->feed());
-	} while (!this->Blocks.at(this->Blocks.size() - 1).isEmpty());
-	this->Blocks.pop_back();
-}
-
-void SyntaxTree::getStatements(std::vector <Assignment>* variables, std::vector <Function>* functions) {
-	for (int i = 0; i < this->Blocks.size(); i++) {
-		this->Blocks.at(i).evaluate({ variables }, functions);
-	}
+		if (this->Blocks.at(this->Blocks.size() - 1).isEmpty()) {
+			this->Blocks.pop_back();
+		}
+	} while (!lexed_info->isEmpty());
 }
 
 void SyntaxTree::coutTree() {
