@@ -30,8 +30,7 @@ public:
 	void coutTree();
 
 	void getStatements(std::vector <Assignment>* variables, std::vector <Function>* functions) {
-		for (int i = 0; i < Blocks.size(); i++) {
-			Blocks.at(i).evaluate({ variables }, functions, &callingFunction, &parameterNum, &executedFunction);
-		}
+		Token last_token("", "");
+		evaluateBlocks(&Blocks, { variables }, functions, &callingFunction, &parameterNum, &executedFunction, nullptr, nullptr, &last_token, "");
 	}
 };

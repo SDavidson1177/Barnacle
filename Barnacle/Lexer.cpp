@@ -18,7 +18,7 @@ std::vector <std::vector <std::string>> symbols = { { "==", "Equality" },{ "=", 
 std::vector <std::vector <std::string>> combined = vectorAppend(keywords, symbols);
 					   // Global listing of all symbols that end a  block. (determine when a block terminates and begins)
 std::vector <std::string> block_beginners = { "LBracket", "LBrace"};
-std::vector <std::string> block_enders = { "RBracket", "RBrace" };
+std::vector <std::string> block_enders = { "RBracket", "RBrace", "Semi-Colon" };
 
 Lexer::Lexer() {
 
@@ -156,11 +156,7 @@ Block Lexer::feed() {
 	Block acc_block;
 	const int size = this->tokens.size();
 	for (int i = 0; i < size; i++) {
-		if (this->tokens.at(0).getTokenValue() == "Semi-Colon") {
-			this->tokens.erase(this->tokens.begin());
-			break;
-		}
-		else if (in == "LBracket" && this->tokens.at(0).getTokenValue() == "Comma") {
+		if (in == "LBracket" && this->tokens.at(0).getTokenValue() == "Comma") {
 			this->tokens.erase(this->tokens.begin());
 			break;
 		}

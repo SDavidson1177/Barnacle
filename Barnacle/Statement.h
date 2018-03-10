@@ -50,13 +50,3 @@ public:
 	bool execute(std::vector <std::vector <Assignment>*> vairables, int phase);
 };
 
-/*class Expression : public Statement {
-	BinaryOperation* root;
-	void destroyExpression(BinaryOperation* BinOp);
-
-public:
-	Expression();
-	~Expression();
-	void destroyExpression();
-};*/
-

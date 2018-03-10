@@ -17,4 +17,6 @@ public:
 	std::string getTokenValue();
 
 	void coutToken();
+
+	bool isNull();
 };

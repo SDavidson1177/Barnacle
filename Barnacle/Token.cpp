@@ -28,3 +28,7 @@ std::string Token::getTokenValue() {
 void Token::coutToken() {
 	std::cout << "(" + this->key + "," + this->value + ")\n";
 }
+
+bool Token::isNull() {
+	return (this->key == "" && this->value == "");
+}

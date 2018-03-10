@@ -50,25 +50,6 @@ BinaryOperation::~BinaryOperation() {
 	}
 }
 
-/*Expression::Expression() {
-	this->root = nullptr;
-}
-
-Expression::~Expression() {
-	this->destroyExpression();
-}
-
-void Expression::destroyExpression() {
-	destroyExpression(this->root);
-}
-
-void Expression::destroyExpression(BinaryOperation* BinOp) {
-	if (BinOp != nullptr) {
-		Expression::destroyExpression(BinOp->right);
-		delete BinOp;
-	}
-}*/
-
 void BinaryOperation::makeOperation(std::vector<Token>* list_of_tokens, int p_op_needed) {
 	try {
 			                 // p_op_needed checks that the expression goes in the following order
